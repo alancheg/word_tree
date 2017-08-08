@@ -1,0 +1,6 @@
+
+*.xml
+*.iml
+*.cut
+*.simp
+word_vec_tree/
