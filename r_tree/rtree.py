@@ -83,6 +83,7 @@ class Rtree(object):
         for i in range(len(self.leaves)):
             for j in range(i + 1, len(self.leaves)):
                 MBR_new = merge(self.leaves[i].MBR, self.leaves[j].MBR)
+
                 S_new = 1.0 * (MBR_new['xmax'] - MBR_new['xmin']) * (MBR_new['ymax'] - MBR_new['ymin'])
                 S1 = 1.0 * (self.leaves[i].MBR['xmax'] - self.leaves[i].MBR['xmin']) * (self.leaves[i].MBR['ymax'] - self.leaves[i].MBR['ymin'])
                 S2 = 1.0 * (self.leaves[j].MBR['xmax'] - self.leaves[j].MBR['xmin']) * (self.leaves[j].MBR['ymax'] - self.leaves[j].MBR['ymin'])
