@@ -229,17 +229,35 @@ def Delete(root, node):
     root = root.CondenseRoot()
     return root
 
-#merge用来合并两个MBR。
+# #merge用来合并两个MBR。
+# def merge(MBR1, MBR2):
+#     if MBR1['xmin'] == None:
+#         return MBR2
+#     if MBR2['xmin'] == None:
+#         return MBR1
+#     MBR = {}
+#     MBR['xmin'] = min(MBR1['xmin'], MBR2['xmin'])
+#     MBR['ymin'] = min(MBR1['ymin'], MBR2['ymin'])
+#     MBR['xmax'] = max(MBR1['xmax'], MBR2['xmax'])
+#     MBR['ymax'] = max(MBR1['ymax'], MBR2['ymax'])
+#     return MBR
+
 def merge(MBR1, MBR2):
+    """
+    合并算法 v2，原始的 R 树将
+    :param MBR1:
+    :param MBR2:
+    :return:
+    """
     if MBR1['xmin'] == None:
         return MBR2
     if MBR2['xmin'] == None:
         return MBR1
+
     MBR = {}
-    MBR['xmin'] = min(MBR1['xmin'], MBR2['xmin'])
-    MBR['ymin'] = min(MBR1['ymin'], MBR2['ymin'])
-    MBR['xmax'] = max(MBR1['xmax'], MBR2['xmax'])
-    MBR['ymax'] = max(MBR1['ymax'], MBR2['ymax'])
+    for key in MBR1.keys():
+        MBR[key] = min(MBR1[key], MBR2[key])
+
     return MBR
 
 #space_increase用来计算MBR2合并到MBR1之后MBR1的面积增加。
@@ -249,6 +267,12 @@ def space_increase(MBR1, MBR2):
     xmax = max(MBR1['xmax'], MBR2['xmax'])
     ymax = max(MBR1['ymax'], MBR2['ymax'])
     return 1.0 * ((xmax - xmin) * (ymax - ymin) - (MBR1['xmax'] - MBR1['xmin']) * (MBR1['ymax'] - MBR1['ymin']))
+
+# space_increase 在二维空间的存储中用来计算两个 MBR 合并后的面积增加，
+# 在高维空间中需要用一种办法简化这个过程
+def space_increase(MBR1, MBR2):
+    pass
+
 
 #intersect判断MBR1和MBR2是否有交集。
 def intersect(MBR1, MBR2):

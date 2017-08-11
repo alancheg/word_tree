@@ -4,3 +4,5 @@
 *.cut
 *.simp
 word_vec_tree/
+wiki_vector
+wiki_model

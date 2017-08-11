@@ -8,8 +8,16 @@ from r_tree import *
 import gensim
 
 
+# 本段代码主要作用就是将基本数据映射成词向量进行存储
+vector_model = gensim.models.Word2Vec.load(r'C:\Users\alan\Desktop\newrtree\wiki_model')
 with open(r'./wiki.zh.text.simp.cut', 'r', encoding='utf-8') as reader:
-    pass
+    # 按行进行存储
+    for line in reader:
+        line_vector = []
+        for word in line:
+            line_vector.append(vector_model[word])
+
+
 
 
 def r_base_test(min = 25, max = 51, length = -1):
