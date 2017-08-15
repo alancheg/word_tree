@@ -6,3 +6,11 @@
 word_vec_tree/
 wiki_vector
 wiki_model
+gensim_model
+gensim_model.syn1neg.npy
+gensim_model.wv.syn0.npy
+gensim_vector
+r_tree/__pycache__/__init__.cpython-36.pyc
+r_tree/__pycache__/rtree_hdim.cpython-36.pyc
+wiki.model
+wiki.vector

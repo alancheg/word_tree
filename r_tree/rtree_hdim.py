@@ -18,7 +18,7 @@ class RNode(object):
     定义节点，从而明确 R 树的存储对象。
     在本次的实验中， level = 0 说明是叶子节点，从下往上 level 递增。
     """
-    def __init__(self, mbr=None, level=0, index=None, father=None):
+    def __init__(self, mbr=None, level=0, index=None, father=None, num=None):
         if mbr is None:
             # 对于一个新的节点，其 mbr 的区域是空的
             # 同时，它们的较大较小值通过列表中的序号进行一一对应
@@ -28,6 +28,9 @@ class RNode(object):
         self.level = level
         self.index = index
         self.father = father
+
+        # 划分单元，对应了每一个关键帧的数据
+        self.num = num
 
 
 class RTreeHdim(object):
@@ -176,7 +179,8 @@ class RTreeHdim(object):
         while p is not None:
             # 如果当前节点的叶子节点数量超过 M，则分裂并且调整父节点的 mbr
             if len(p.leaves) > p.M:
-                p.SplitNode()
+                # p.SplitNode()
+                p.split_node()
             else:
                 # 否则对父节点的 mbr 进行调整
                 if p.father is not None:
@@ -262,7 +266,7 @@ class RTreeHdim(object):
 def area_calc(mbr):
     # 计算 新的面积
     vo = 1
-    for i in range(mbr['min']):
+    for i in range(len(mbr['min'])):
         vo *= mbr['max'][i] - mbr['min'][i]
     return vo
 
@@ -311,9 +315,20 @@ def merge(mbr1, mbr2):
     if mbr2['min'][0] is None:
         return mbr1
 
+    new_mbr = {'min': [None]*len(mbr1['min']), 'max':[None]*len(mbr1['min'])}
+    for i in range(len(mbr1['min'])):
+        if mbr1['min'][i] < mbr2['min'][i]:
+            new_mbr['min'][i] = mbr1['min'][i]
+        else:
+            new_mbr['min'][i] = mbr2['min'][i]
+
+        if mbr1['max'][i] > mbr2['max'][i]:
+            new_mbr['max'][i] = mbr1['max'][i]
+        else:
+            new_mbr['max'][i] = mbr2['max'][i]
+
     # 用 lambda 进行了改写，可能会出现问题
-    return {'min': [lambda i:min(mbr1['min'][i], mbr2['min'][i]), [i for i in range(mbr1['min'])]],
-            'max': [lambda i:max(mbr1['max'][i], mbr2['max'][i]), [i for i in range(mbr1['max'])]]}
+    return new_mbr
 
 
 # done
