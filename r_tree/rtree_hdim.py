@@ -18,7 +18,7 @@ class RNode(object):
     定义节点，从而明确 R 树的存储对象。
     在本次的实验中， level = 0 说明是叶子节点，从下往上 level 递增。
     """
-    def __init__(self, mbr=None, level=0, index=None, father=None, num=None):
+    def __init__(self, mbr=None, level=0, index=None, father=None):
         if mbr is None:
             # 对于一个新的节点，其 mbr 的区域是空的
             # 同时，它们的较大较小值通过列表中的序号进行一一对应
@@ -28,9 +28,6 @@ class RNode(object):
         self.level = level
         self.index = index
         self.father = father
-
-        # 划分单元，对应了每一个关键帧的数据
-        self.num = num
 
 
 class RTreeHdim(object):
@@ -66,7 +63,8 @@ class RTreeHdim(object):
         # 否则对其子节点的 mbr 进行遍历，找到面积增加的最小值
             increment = [(i, space_increase(self.leaves[i].mbr, node.mbr)) for i in range(len(self.leaves))]
             res = min(increment, key=lambda x:x[1])
-            return self.leaves[res[0]].chooseLeaf(node)
+            # return self.leaves[res[0]].chooseLeaf(node)
+            return self.leaves[res[0]].choose_leaf(node)
 
     # done
     def split_node(self):
@@ -107,7 +105,8 @@ class RTreeHdim(object):
                 break
 
             # 否则调用PickNext为leaf1和leaf2分配下一个节点。
-            self.PickNext(leaf1, leaf2)
+            # self.PickNext(leaf1, leaf2)
+            self.pick_next(leaf1, leaf2)
 
         # 当前节点的父节点删除掉当前节点并加入新的两个节点，完成分裂。
         self.father.leaves.remove(self)
@@ -129,8 +128,8 @@ class RTreeHdim(object):
                 mbr_new = merge(self.leaves[i].mbr, self.leaves[j].mbr)
 
                 s_new = area_calc(mbr_new)
-                s1 = area_calc(self.leaves[i])
-                s2 = area_calc(self.leaves[j])
+                s1 = area_calc(self.leaves[i].mbr)
+                s2 = area_calc(self.leaves[j].mbr)
 
                 if s_new - s1 - s2 > d:
                     t1 = i
@@ -189,6 +188,7 @@ class RTreeHdim(object):
 
     # done
     def search(self, mbr):
+
         # 搜索给定的矩形范围
         result = []
         # 如果已经到达叶子节点，则在 result 中直接添加对象
@@ -201,8 +201,10 @@ class RTreeHdim(object):
         else:
             for leaf in self.leaves:
                 if intersect(mbr, leaf.mbr):
-                    result = result + leaf.Search(mbr)
+                    # result = result + leaf.Search(mbr)
+                    result = result + leaf.search(mbr)
             return result
+
 
     # done
     def find_leaf(self, node):
@@ -264,10 +266,16 @@ class RTreeHdim(object):
 
 # done
 def area_calc(mbr):
+    """
+
+    :param mbr: 输入的是最小边界矩形
+    :return:
+    """
     # 计算 新的面积
     vo = 1
+
     for i in range(len(mbr['min'])):
-        vo *= mbr['max'][i] - mbr['min'][i]
+        vo *= (mbr['max'][i] - mbr['min'][i])
     return vo
 
 
@@ -295,8 +303,7 @@ def delete(root, node):
         return root
     target.leaves.remove(node)
     target.condense_tree()
-    root = root.condense_root()
-    return root
+    return root.condense_root()
 
 
 # done
@@ -364,7 +371,7 @@ def space_increase(mbr1, mbr2):
     """
     def vulome(mbr):
         vo = 1
-        for i in range(mbr['min']):
+        for i in range(len(mbr['min'])):
             vo = vo * (mbr['max'][i] - mbr['min'][i])
         return vo
 
@@ -378,8 +385,7 @@ def contain(mbr1, mbr2):
     :param mbr2: 从属
     :return: 如果 mbr1 包含了 mbr2 ,返回 True ，否则返回 False
     """
-    for i in range(mbr1['min']):
+    for i in range(len(mbr1['min'])):
         if not mbr2['min'][i] >= mbr1['min'][i] and mbr2['max'][i] <= mbr1['max'][i]:
             return False
-
     return True

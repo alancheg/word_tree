@@ -3,8 +3,14 @@
 现在的方案是将高维词向量转换成二维向量，从而能够进行空间的判定，进而使用 r 树
 
 现在的版本是将词向量转化成三维空间进行检索
+
+v2
+新版本的主要效果是将指定维度的数据进行转换，
+从而生成一定维度相似的数据
+这样可以避免最后生成的数据相似度太高
+
 @author:alancheg
-@date:2017-8-10
+@date:2017-8-15
 """
 import jieba
 import gensim
@@ -16,7 +22,6 @@ from r_tree.rtree_hdim import *
 #     # 通过为向量增加一定的长度，从而将向量转换成一个区域
 #     return [word_vec1, word_vec1 + 0.1]
 
-
 def merge_area(area_list):
     """
     对于一个给定的空间列表，返回一个能够覆盖它们所有空间的集合
@@ -27,14 +32,6 @@ def merge_area(area_list):
     # 判断空间的维度，初始化新的空间
     dim = len(area_list[0]['min'])
     area = {'min': [None]*dim, 'max': [None]*dim}
-
-    # for item in area_list:
-    #     for key in item.keys():
-    #         if area[key] is None:
-    #             area[key] = item[key]
-    #         else:
-    #             if area[key] < item[key]:
-    #                 area[key] = item[key]
 
     for item in area_list:
         for i in range(len(item['min'])):
@@ -57,11 +54,6 @@ def vec2cube(word_vec):
     :param word_vec: 需要转换的词向量
     :return: 一个以词向量进行排列的立方体
     """
-    # return {'xmin': min(word_vec[0:len(word_vec) / 3]), 'xmax': max(word_vec[0:len(word_vec) / 3]),
-    #         'ymin': min(word_vec[len(word_vec) / 3:(2 * len(word_vec)) / 3]),
-    #         'ymax': max(word_vec[len(word_vec) / 3:(2 * len(word_vec)) / 3]),
-    #         'zmin': min(word_vec[(2 * len(word_vec)) / 3:len(word_vec)]),
-    #         'zmax': max(word_vec[(2 * len(word_vec)) / 3:len(word_vec)])}
 
     return {'min': [min(word_vec[0:int(len(word_vec) / 3)]),
                     min(word_vec[int(len(word_vec) / 3):int((2 * len(word_vec)) / 3)]),
@@ -71,6 +63,19 @@ def vec2cube(word_vec):
                     max(word_vec[int((2 * len(word_vec)) / 3):len(word_vec)])]}
 
 
+def rank_result(query_area, result_list):
+    def inter_volumn(area1, area2):
+        # 判断空间2 与 空间1 相交的体积 占空间1 的百分比，
+        # 百分比越高说明相关度越高
+        pass
+
+
+    # 用冒泡排序的方法，从而将覆盖面价最大的数据放在前面
+    pass
+
+
+
+# todo： 应该取特定的维度的数据，而不是找最大和最小值，否则最后的结果是全部覆盖
 if __name__ == "__main__":
     # 读取文件
     data_file = r'D:\desktop\newrtree\wiki.zh.text.simp.cut'
@@ -81,34 +86,39 @@ if __name__ == "__main__":
 
     # 通过将原始的数据文件按照行进行转化，然后以行为单元进行划分，
     # 从而将词向量模型以空间结构进行存储
+    word_data = []
     with open(data_file, 'r', encoding='utf-8') as reader:
-        # count = 0
-        area_list = []
-        for line in list(reader)[0:100000]:
-            words = jieba.cut(line)
+        word_data = list(reader)[0:1000]
 
-            # 现在的模拟实验就是将数据进行按行存储
-            # 将每行转化成一个高维空间，从而进行覆盖查询
-            w_vec = []
-            for w in words:
-                # print(w)
+    # count = 0
+    area_list = []
 
-                # 如果当前的词不在词向量模型中，直接抛弃
-                try:
-                    w = word_model[w].tolist()
-                    w_vec.append(vec2cube(w))
-                except:
-                    pass
+    for line in word_data:
+        words = jieba.cut(line)
 
-            # 将每一行合并成一个区域
-            line_area = merge_area(w_vec)
-            area_list.append(line_area)
+        # 现在的模拟实验就是将数据进行按行存储
+        # 将每行转化成一个高维空间，从而进行覆盖查询
+        w_vec = []
+        for w in words:
+            # print(w)
+
+            # 如果当前的词不在词向量模型中，直接抛弃
+            try:
+                # 只采用前 6 维数据
+                w = word_model[w].tolist()[0:6]
+                w_vec.append(vec2cube(w))
+            except:
+                pass
+
+        # 将每一行合并成一个区域
+        line_area = merge_area(w_vec)
+        area_list.append(line_area)
 
     # 树的初始化及数据预处理
     root = RTreeHdim()
     node_queue = []
     for i in range(len(area_list)):
-        node_queue.append(RNode(mbr=area_list[i], index=i, sentence=""))
+        node_queue.append(RNode(mbr=area_list[i], index=i))
         # print(RNode(mbr=area_list[i], index=i))
     print("数据加载完成，总共有 " + str(len(area_list)) + " 条数据")
 
@@ -125,14 +135,22 @@ if __name__ == "__main__":
     words = jieba.cut(user_query)
     word_vec = []
     for wd in words:
-        # print(w)
-
         # 如果当前的词不在词向量模型中，直接抛弃
         try:
-            wd = word_model[wd].tolist()
+            wd = word_model[wd].tolist()[0:6]
             word_vec.append(vec2cube(w))
         except:
             pass
     query_area = merge_area(w_vec)
-    print(root.search(query_area))
-    print(len(root.search(query_area)))
+
+    query_st = time()
+    query_result = root.search(query_area)
+    query_ed = time()
+
+    print('query time :' + str(query_ed - query_st))
+
+    for item in query_result[0:10]:
+        print(item)
+        print(word_data[item])
+
+    print(len(query_result))
