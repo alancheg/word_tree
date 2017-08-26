@@ -14,22 +14,39 @@ from sklearn.feature_extraction.text import CountVectorizer
 from scipy import sparse
 
 
-TF_IDF_VALUE = 0.01
+TF_IDF_VALUE = 0.04
 if __name__ == "__main__":
     with open(r"D:\desktop\newrtree\wiki.zh.text.simp", encoding='utf-8') as reader:
+
+        # ---- 分词 词袋 ------ #
         file_list = []
-        for line in list(reader)[:10000]:
-            file_list.append(' '.join(jieba.cut(line)))
+        for or_line in list(reader)[:1000]:
+            # file_list.append(' '.join(jieba.cut(line)))
 
-        # todo:首先将词向量按照词袋模型进行处理，减少后面的计算量
+            # todo:首先将词向量按照词袋模型进行处理，减少后面的计算量
+            # todo:词袋算法还能够再优化一下
+            line = ' '.join(jieba.cut(or_line))
+            new_line = []
+            for item in line.split(' '):
+                if item not in new_line:
+                    new_line.append(item)
 
+            min_line = ''
+            for item in new_line:
+                min_line += str(item)
+                min_line += ' '
 
+            print(min_line)
+            file_list.append(min_line)
+
+        # ---- tf-idf 计算 ---- #
         vectorizer = CountVectorizer()
         transformer = TfidfTransformer()
         tfidf = transformer.fit_transform(vectorizer.fit_transform(file_list))
         word = vectorizer.get_feature_names()
         weight = tfidf.toarray()
 
+        # ---- 筛选出大于阈值的词 ---- #
         imp_words = {}
         print(len(weight))
         for i in range(len(weight)):
