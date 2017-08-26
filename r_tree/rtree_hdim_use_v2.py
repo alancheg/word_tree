@@ -18,10 +18,6 @@ from time import time
 from r_tree.rtree_hdim import *
 
 
-# def vec2area(word_vec1):
-#     # 通过为向量增加一定的长度，从而将向量转换成一个区域
-#     return [word_vec1, word_vec1 + 0.1]
-
 def merge_area(area_list):
     """
     对于一个给定的空间列表，返回一个能够覆盖它们所有空间的集合
@@ -62,20 +58,18 @@ def vec2cube(word_vec):
                     max(word_vec[int(len(word_vec) / 3):int((2 * len(word_vec)) / 3)]),
                     max(word_vec[int((2 * len(word_vec)) / 3):len(word_vec)])]}
 
-
+# todo: 对搜索结果进行排序
 def rank_result(query_area, result_list):
     def inter_volumn(area1, area2):
-        # 判断空间2 与 空间1 相交的体积 占空间1 的百分比，
-        # 百分比越高说明相关度越高
         pass
 
-
-    # 用冒泡排序的方法，从而将覆盖面价最大的数据放在前面
-    pass
-
+    for i in range(len(result_list)):
+        for j in range(i, len(result_list)):
+            pass
 
 
 # todo： 应该取特定的维度的数据，而不是找最大和最小值，否则最后的结果是全部覆盖
+# todo:  现在的情况是，如果仍然只取前几个数，还是会造成维度的颠倒，
 if __name__ == "__main__":
     # 读取文件
     data_file = r'D:\desktop\newrtree\wiki.zh.text.simp.cut'
@@ -84,13 +78,12 @@ if __name__ == "__main__":
     # 加载词向量模型
     word_model = gensim.models.Word2Vec.load(model_file)
 
-    # 通过将原始的数据文件按照行进行转化，然后以行为单元进行划分，
+    # 通过将原始的数据文件按照行进行转化，然后以行为单元进行划分
     # 从而将词向量模型以空间结构进行存储
     word_data = []
     with open(data_file, 'r', encoding='utf-8') as reader:
-        word_data = list(reader)[0:1000]
+        word_data = list(reader)[0:10000]
 
-    # count = 0
     area_list = []
 
     for line in word_data:
@@ -119,7 +112,6 @@ if __name__ == "__main__":
     node_queue = []
     for i in range(len(area_list)):
         node_queue.append(RNode(mbr=area_list[i], index=i))
-        # print(RNode(mbr=area_list[i], index=i))
     print("数据加载完成，总共有 " + str(len(area_list)) + " 条数据")
 
     t0 = time()
@@ -141,13 +133,15 @@ if __name__ == "__main__":
             word_vec.append(vec2cube(w))
         except:
             pass
+
     query_area = merge_area(w_vec)
 
+    # ---------- 获取查询结果，并且计算查询时间 ------------ #
     query_st = time()
     query_result = root.search(query_area)
     query_ed = time()
-
     print('query time :' + str(query_ed - query_st))
+    # ------------------------------------------------- #
 
     for item in query_result[0:10]:
         print(item)
