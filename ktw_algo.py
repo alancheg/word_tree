@@ -25,6 +25,8 @@ if __name__ == "__main__":
 
             # todo:首先将词向量按照词袋模型进行处理，减少后面的计算量
             # todo:词袋算法还能够再优化一下
+
+            #todo:减少计算量，取出最大的几个值即可
             line = ' '.join(jieba.cut(or_line))
             new_line = []
             for item in line.split(' '):
@@ -36,7 +38,7 @@ if __name__ == "__main__":
                 min_line += str(item)
                 min_line += ' '
 
-            print(min_line)
+            # print(min_line)
             file_list.append(min_line)
 
         # ---- tf-idf 计算 ---- #
@@ -55,6 +57,23 @@ if __name__ == "__main__":
                 if weight[i][j] > TF_IDF_VALUE:
                     imp_words[word[j]] = weight[i][j]
                     print(word[j], weight[i][j])
+
+        # todo：获取最大元素的筛选方法
+        # # ---- 不使用阈值的方法，而是使用获取最大几个值 ---- #
+        # GET_TOP_WORDS_NUM = 8
+        # top_words = {}
+        # for i in range(len(weight)):
+        #     for num in range(GET_TOP_WORDS_NUM):
+        #         if top_words[i] is None:
+        #             top_words[i] = []
+        #             # 将最大的元素添加进词库
+        #             max(weight[i])
+        #
+        #
+        #
+        #             top_words[i].append(word[()])
+        #         else:
+
 
         #todo: 基于这个矩阵进行计算（如何让它能够并行）
         # 将上文的矩阵转化为一个稀疏矩阵，
