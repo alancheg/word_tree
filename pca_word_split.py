@@ -85,7 +85,7 @@ if __name__ == "__main__":
             print('wiki file loaded')
     else:
         with open(r"D:\desktop\newrtree\wiki.zh.text.simp.cut", encoding='utf-8') as reader:
-            # 对于文件中的分词句子，首先转换成对应的词向量进行表示
+            # 对于文件中的分词句子，首先转换成对应的词向量进行表示 #
             for line in list(reader)[1000]:
                 line_list = []
                 for word in line:
@@ -97,5 +97,7 @@ if __name__ == "__main__":
                 pickle.dump(all_list, wiki)
                 print('wiki file saved')
 
+    # 构建一个基于 ‘土木’ ‘建筑’ 的词袋，获取相关的关键词 #
+
+
     # ==== 将文件转换为空间结构，然后进行合并存储 ==== #
-    
